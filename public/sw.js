@@ -1,4 +1,4 @@
-const VERSION = 'due-board-v1.0.0';
+const VERSION = 'due-board-v1.0.1';
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 const CORE = [
@@ -10,6 +10,7 @@ const CORE = [
   '/icon-192.png',
   '/icon-512.png',
   '/assets/due-board-material-768.webp',
+  '/assets/due-board-material-768.avif',
   '/assets/due-board-material-1536.webp',
   '/assets/due-board-material-1536.avif',
   '/privacy/',

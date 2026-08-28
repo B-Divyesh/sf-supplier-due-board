@@ -12,6 +12,7 @@ Live product: <https://supplier-due-board.sociobot.in>
 - Records a manual paid date and proof-of-payment note; paid bills can be reopened.
 - Prints a focused weekly review: overdue and next-seven-day bills plus the last seven days of payments.
 - Exports a complete JSON backup including attachments, exports CSV for spreadsheets, imports backups, and deletes all local data on request.
+- Fully validates and materializes a backup before offering to replace the board; a rejected import never mutates the current records.
 - Installs as a PWA and works after the network is disconnected.
 
 It intentionally does not connect to a bank, move money, scan invoices, create journal entries, or verify that a payment reached a supplier.
@@ -42,6 +43,7 @@ npm run test:e2e
 - `npm test` runs the plain-date and weekly-review unit tests.
 - `npm run build` is the deployment build command. It type-checks and writes the static application to `dist/`, with `dist/index.html` at its root.
 - `npm run test:e2e` starts the built preview and runs Chromium flows at desktop and 390 px mobile widths, including IndexedDB persistence, attachments, payment status, accessibility scans, and a fully offline reload.
+- Deployment-policy tests cover immutable asset caching, browser security headers, MIME mappings, and the responsive mobile AVIF.
 
 For a clean-clone verification:
 
@@ -59,7 +61,7 @@ Playwright is pinned to `1.58.2`; the CI or worker image must provide its Chromi
 Deploy the contents of `dist/` as a static site. Do not deploy the repository root. The host should:
 
 - serve `privacy/index.html` at `/privacy/` and `terms/index.html` at `/terms/`;
-- serve assets with normal cache headers (the versioned service worker manages its own shell caches);
+- honor `staticwebapp.config.json`, including one-year immutable caching for `/assets/*`, correct AVIF/manifest MIME types, and the declared CSP and Permissions Policy;
 - use HTTPS so IndexedDB, installation, and service workers are available.
 
 The factory owns DNS and production deployment. No environment variables, API keys, billing integration, or server process are required.

@@ -3,7 +3,7 @@
   "name": "Due Board — supplier bills",
   "short_name": "Due Board",
   "description": "A private, offline board for supplier invoices and manual payment records.",
-  "start_url": "/?source=installed&v=1",
+  "start_url": "/?source=installed&v=1.0.1",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",

@@ -1,4 +1,5 @@
 import './styles.css';
+import { materializeBackup } from './backup';
 import { billStore } from './db';
 import { daysFromToday, dueDescription, formatPlainDate, isInWeeklyReview, localDateISO } from './date';
 import type { Bill, DueBoardBackup, PortableBill } from './types';
@@ -16,7 +17,7 @@ root.innerHTML = `
   </div>
   <header class="site-header">
     <div class="header-inner">
-      <a class="wordmark" href="/" aria-label="Due Board home"><span>DUE</span><i></i><span>BOARD</span></a>
+      <a class="wordmark" href="/"><span>DUE</span> <i aria-hidden="true"></i> <span>BOARD</span></a>
       <nav aria-label="Product">
         <button class="text-button" type="button" id="data-button">Data controls</button>
         <button class="text-button install-button" type="button" id="install-button" hidden>Install app</button>
@@ -37,7 +38,7 @@ root.innerHTML = `
       </div>
       <figure class="material-figure">
         <picture>
-          <source type="image/avif" srcset="/assets/due-board-material-1536.avif 1536w" sizes="(max-width: 760px) 100vw, 430px" />
+          <source type="image/avif" srcset="/assets/due-board-material-768.avif 768w, /assets/due-board-material-1536.avif 1536w" sizes="(max-width: 760px) calc(100vw - 24px), 430px" />
           <img src="/assets/due-board-material-768.webp" srcset="/assets/due-board-material-768.webp 768w, /assets/due-board-material-1536.webp 1536w" sizes="(max-width: 760px) 100vw, 430px" width="768" height="512" alt="Blank cream invoice slips clipped on rough concrete beside a strip of moss" fetchpriority="high" decoding="async" />
         </picture>
         <figcaption>Keep the paper. See the week.</figcaption>
@@ -309,6 +310,10 @@ async function askToConfirm(title: string, copy: string, actionLabel = 'Delete')
 
 async function saveBill(event: SubmitEvent): Promise<void> {
   event.preventDefault();
+  const supplierInput = $<HTMLInputElement>('#supplier');
+  const supplier = supplierInput.value.trim();
+  supplierInput.setCustomValidity(supplier ? '' : 'Enter a supplier name, not only spaces.');
+  if (!supplier) $('#bill-error').textContent = 'Enter a supplier name, not only spaces.';
   if (!billForm.reportValidity()) return;
   const fileInput = $<HTMLInputElement>('#attachment');
   const file = fileInput.files?.[0];
@@ -331,7 +336,7 @@ async function saveBill(event: SubmitEvent): Promise<void> {
   const amountMinor = Math.round(Number($<HTMLInputElement>('#amount').value) * 100);
   const bill: Bill = {
     id: existing?.id ?? crypto.randomUUID(),
-    supplier: $<HTMLInputElement>('#supplier').value.trim(),
+    supplier,
     invoiceNumber: $<HTMLInputElement>('#invoice-number').value.trim(),
     amountMinor,
     currency: $<HTMLSelectElement>('#currency').value,
@@ -469,32 +474,11 @@ function exportCsv(): void {
   showToast('CSV downloaded. Attachments are named, not embedded.');
 }
 
-function dataUrlToBlob(value: string): Blob {
-  const match = /^data:([^;,]*)(;base64)?,(.*)$/.exec(value);
-  if (!match) throw new Error('The backup contains an invalid attachment.');
-  const bytes = match[2] ? atob(match[3]) : decodeURIComponent(match[3]);
-  const array = new Uint8Array(bytes.length);
-  for (let index = 0; index < bytes.length; index += 1) array[index] = bytes.charCodeAt(index);
-  return new Blob([array], { type: match[1] || 'application/octet-stream' });
-}
-
-function validatePortableBill(value: unknown): value is PortableBill {
-  if (!value || typeof value !== 'object') return false;
-  const bill = value as Partial<PortableBill>;
-  return typeof bill.id === 'string' && typeof bill.supplier === 'string' && bill.supplier.length > 0 && typeof bill.amountMinor === 'number' && Number.isSafeInteger(bill.amountMinor) && bill.amountMinor > 0 && typeof bill.currency === 'string' && /^[A-Z]{3}$/.test(bill.currency) && typeof bill.dueDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(bill.dueDate) && (bill.status === 'open' || bill.status === 'paid') && typeof bill.createdAt === 'string' && typeof bill.updatedAt === 'string';
-}
-
 async function importBackup(file: File): Promise<void> {
   $('#data-error').textContent = '';
   if (file.size > 60 * 1024 * 1024) throw new Error('That backup is over 60 MB and is too large to import safely.');
   const parsed: unknown = JSON.parse(await file.text());
-  if (!parsed || typeof parsed !== 'object') throw new Error('This is not a Due Board backup.');
-  const backup = parsed as Partial<DueBoardBackup>;
-  if (backup.product !== 'supplier-due-board' || backup.version !== 1 || !Array.isArray(backup.bills) || !backup.bills.every(validatePortableBill)) throw new Error('This file is not a valid Due Board v1 backup.');
-  const imported: Bill[] = backup.bills.map(({ attachment, ...bill }) => ({
-    ...bill,
-    attachment: attachment ? { name: attachment.name, type: attachment.type, size: attachment.size, data: dataUrlToBlob(attachment.dataUrl) } : undefined,
-  }));
+  const imported = materializeBackup(parsed);
   const confirmed = await askToConfirm('Replace this board?', `Importing ${imported.length} bill${imported.length === 1 ? '' : 's'} will replace the ${bills.length} currently stored here. Export a backup first if you need both.`, 'Replace board');
   if (!confirmed) return;
   await billStore.replaceAll(imported);
@@ -552,6 +536,10 @@ document.querySelectorAll<HTMLElement>('[data-add-bill]').forEach((button) => bu
 document.querySelectorAll<HTMLButtonElement>('[data-close]').forEach((button) => button.addEventListener('click', () => closeDialog(button.closest('dialog') as HTMLDialogElement)));
 document.querySelectorAll<HTMLDialogElement>('dialog').forEach((dialog) => dialog.addEventListener('click', (event) => { if (event.target === dialog) closeDialog(dialog); }));
 billForm.addEventListener('submit', (event) => void saveBill(event));
+$<HTMLInputElement>('#supplier').addEventListener('input', (event) => {
+  (event.currentTarget as HTMLInputElement).setCustomValidity('');
+  $('#bill-error').textContent = '';
+});
 paidForm.addEventListener('submit', (event) => void savePaid(event));
 $<HTMLInputElement>('#search').addEventListener('input', (event) => { searchTerm = (event.currentTarget as HTMLInputElement).value; render(); });
 $('#status-filter').addEventListener('change', (event) => { statusFilter = (event.target as HTMLInputElement).value as StatusFilter; render(); });

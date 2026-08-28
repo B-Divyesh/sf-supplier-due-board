@@ -41,7 +41,7 @@ img { max-width: 100%; display: block; }
 .offline-ribbon { padding: 8px max(24px, env(safe-area-inset-left)); color: var(--paper); background: var(--amber); text-align: center; font-size: .86rem; font-weight: 800; }
 .site-header { background: var(--charcoal); color: var(--paper); }
 .header-inner { width: min(1180px, calc(100% - 48px)); min-height: 78px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-.wordmark { display: grid; grid-template-columns: auto 40px auto; align-items: center; gap: 10px; color: var(--paper); text-decoration: none; font-size: .86rem; font-weight: 900; letter-spacing: .15em; }
+.wordmark { display: grid; grid-template-columns: auto 40px auto; align-items: center; min-height: 44px; padding-block: 8px; gap: 10px; color: var(--paper); text-decoration: none; font-size: .86rem; font-weight: 900; letter-spacing: .15em; }
 .wordmark i { height: 2px; background: var(--lichen); transform: rotate(-12deg); }
 .site-header nav { display: flex; gap: 20px; }
 .text-button { min-height: 44px; padding: 8px 2px; color: var(--paper); border: 0; border-bottom: 2px solid transparent; background: transparent; font-weight: 750; }
@@ -62,7 +62,7 @@ h1 em { color: var(--moss); font-weight: 400; }
 .local-note { margin: 24px 0 0; color: var(--charcoal-soft); font-size: .91rem; }
 .local-note::before { content: "⌂"; margin-right: 8px; color: var(--moss-deep); font-weight: 900; }
 .material-figure { position: relative; margin: 0; border: 2px solid var(--charcoal); background: var(--charcoal); box-shadow: 10px 10px 0 var(--concrete-2); transform: rotate(1.2deg); clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%); }
-.material-figure img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; filter: saturate(.86) contrast(1.04); }
+.material-figure img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; filter: saturate(.86) contrast(1.04); }
 .material-figure figcaption { padding: 12px 16px; color: var(--paper); font-size: .76rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
 
 .board { padding-block: 56px 96px; border-top: 2px solid var(--charcoal); }
@@ -123,7 +123,7 @@ h2 { margin: 0; font: 700 clamp(2rem, 4vw, 3.25rem)/1 Georgia, serif; letter-spa
 .payment-proof b { display: block; }
 .bill-amount { margin: 0; font: 700 clamp(1.25rem, 2.3vw, 1.7rem)/1 Georgia, serif; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .bill-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; max-width: 220px; }
-.bill-actions button { min-height: 44px; }
+.bill-actions button { min-width: 44px; min-height: 44px; }
 .paid-button { padding: 8px 13px; border-color: var(--moss-deep); color: var(--paper); background: var(--moss-deep); box-shadow: 3px 3px 0 var(--concrete-2); }
 .plain-action { padding: 8px 6px; border: 0; border-bottom: 2px solid transparent; background: transparent; font-size: .78rem; font-weight: 800; }
 .plain-action:hover { border-color: var(--charcoal); }
@@ -151,7 +151,7 @@ h2 { margin: 0; font: 700 clamp(2rem, 4vw, 3.25rem)/1 Georgia, serif; letter-spa
 .site-footer .wrap { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 32px; }
 .site-footer p { margin: 0; font-size: .82rem; }
 .site-footer nav { display: flex; gap: 24px; }
-.site-footer a { color: var(--paper); }
+.site-footer a { display: inline-grid; min-height: 44px; padding-inline: 4px; place-items: center; color: var(--paper); }
 .site-footer .disclosure { color: var(--concrete-2); text-align: right; }
 
 dialog { color: var(--charcoal); }
@@ -224,7 +224,7 @@ dialog::backdrop { background: rgb(32 35 31 / 72%); backdrop-filter: blur(2px); 
   .intro-actions { display: grid; }
   .intro-actions button { width: 100%; }
   .material-figure { transform: rotate(.5deg); box-shadow: 6px 6px 0 var(--concrete-2); }
-  .material-figure img { aspect-ratio: 16 / 7; object-position: 45% 45%; }
+  .material-figure img { height: clamp(144px, 42vw, 176px); aspect-ratio: auto; object-position: 45% 45%; }
   .board { padding-block: 44px 72px; }
   .section-heading { display: block; }
   .as-of { margin-top: 14px; }

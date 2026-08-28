@@ -75,4 +75,4 @@ Generated assets are original to Due Board and are disclosed in the footer. Hand
 - **Generator:** factory image model (`factory-image` deployment) through `/opt/fleet/lib/gen-image.sh`; generated 2026-08-28 at 1536×1024, high quality.
 - **Prompt:** the production prompt above, stored verbatim in `assets/src/due-board-material.json`.
 - **Review:** inspected at original resolution. Blank paper edges and shadows are coherent; the image contains one plausible clip, no lettering, no people, no brand marks, no watermark, and no unintended symbols.
-- **Delivery:** responsive 768px and 1536px WebP plus 1536px AVIF. All WebP variants are kept below the 300 KB hero limit. Exact byte sizes are recorded in the handoff after the production build.
+- **Delivery:** responsive 768px and 1536px WebP plus 768px and 1536px AVIF. The 390px layout intentionally crops the material study into a shallow 144–176px band, and its 768px AVIF is 66,655 bytes. All variants are below the 300 KB hero limit.
