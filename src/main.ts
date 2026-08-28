@@ -456,7 +456,9 @@ async function exportJson(): Promise<void> {
 }
 
 function csvCell(value: string | number): string {
-  return `"${String(value).replaceAll('"', '""')}"`;
+  const text = String(value);
+  const spreadsheetSafe = /^[=+\-@]/.test(text) ? `'${text}` : text;
+  return `"${spreadsheetSafe.replaceAll('"', '""')}"`;
 }
 
 function exportCsv(): void {
