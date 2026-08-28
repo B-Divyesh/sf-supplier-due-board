@@ -12,12 +12,18 @@ test('adds, persists, pays, and reopens a supplier bill', async ({ page }) => {
   await page.getByLabel('Amount *').fill('184.25');
   await page.getByLabel('Currency').selectOption('USD');
   await page.getByLabel('Due date *').fill('2026-09-04');
+  await page.getByLabel('Invoice attachment').setInputFiles({ name: 'north-works.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4 local test invoice') });
   await page.getByRole('button', { name: 'Save bill' }).click();
 
   await expect(page.getByRole('heading', { name: 'North Works Paper' })).toBeVisible();
   await expect(page.locator('.bill-amount').getByText('$184.25')).toBeVisible();
+  await expect(page.getByRole('button', { name: /north-works.pdf/ })).toBeVisible();
+  const firstAttachment = page.waitForEvent('download');
+  await page.getByRole('button', { name: /north-works.pdf/ }).click();
+  await expect((await firstAttachment).suggestedFilename()).toBe('north-works.pdf');
   await page.reload();
   await expect(page.getByRole('heading', { name: 'North Works Paper' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /north-works.pdf/ })).toBeVisible();
 
   await page.getByRole('button', { name: 'Mark paid' }).click();
   await expect(page.getByRole('heading', { name: 'Mark as paid' })).toBeVisible();
@@ -31,6 +37,11 @@ test('adds, persists, pays, and reopens a supplier bill', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Reopen North Works Paper?' })).toBeVisible();
   await page.getByRole('button', { name: 'Reopen bill' }).click();
   await expect(page.getByRole('button', { name: 'Mark paid' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Data controls' }).click();
+  const backupDownload = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export complete backup' }).click();
+  await expect((await backupDownload).suggestedFilename()).toMatch(/^due-board-backup-\d{4}-\d{2}-\d{2}\.json$/);
 });
 
 test('has no serious accessibility violations in empty and form states', async ({ page }) => {
