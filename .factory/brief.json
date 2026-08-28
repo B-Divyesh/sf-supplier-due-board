@@ -1,0 +1,14 @@
+{
+  "slug": "supplier-due-board",
+  "title": "Due Board",
+  "territory": "utilities",
+  "user": "A sole proprietor or household-sized business that needs a clean view of incoming supplier invoices, due dates, and manual payment status before cash arrives.",
+  "smallest_useful_product": "An offline due-date board with supplier, amount, due date, attachment, paid date, and a weekly printable list. Non-goals: bank connections, bill payment, OCR, accounting journal entries, and credit scoring.",
+  "success_measure": "At least 75% of pilots enter ten bills in the first month and can account for every due/paid status in a weekly review without opening their inbox.",
+  "artifact_class": "pwa-offline",
+  "monetization": "free — a no-account local utility is a credible acquisition wedge; optional export/templates can later be paid.",
+  "constraints": "Dates/time zones must be unambiguous; attachments stay local; provide data export and a deletion path; no financial advice or payment guarantees.",
+  "why_distinct": "It intentionally stops at bill awareness and payment recording instead of recreating full accounts payable software.",
+  "confidence": 4,
+  "state": "RESEARCHED"
+}

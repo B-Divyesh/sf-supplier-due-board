@@ -69,4 +69,10 @@ Generate at 1536×1024 with the factory image model, review at original resoluti
 
 ## Asset provenance
 
-Generated assets are original to Due Board and are disclosed in the footer. Record the exact factory model/deployment, generation date, retained filename, prompt, visual review, and output sizes here after generation. Hand-authored interface icons use inline SVG strokes and are MIT-licensed with the application.
+Generated assets are original to Due Board and are disclosed in the footer. Hand-authored interface icons use inline SVG strokes and are MIT-licensed with the application.
+
+- **Retained source:** `assets/src/due-board-material.png`
+- **Generator:** factory image model (`factory-image` deployment) through `/opt/fleet/lib/gen-image.sh`; generated 2026-08-28 at 1536×1024, high quality.
+- **Prompt:** the production prompt above, stored verbatim in `assets/src/due-board-material.json`.
+- **Review:** inspected at original resolution. Blank paper edges and shadows are coherent; the image contains one plausible clip, no lettering, no people, no brand marks, no watermark, and no unintended symbols.
+- **Delivery:** responsive 768px and 1536px WebP plus 1536px AVIF. All WebP variants are kept below the 300 KB hero limit. Exact byte sizes are recorded in the handoff after the production build.

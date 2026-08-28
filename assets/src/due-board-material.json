@@ -1,0 +1,10 @@
+{
+  "asset": "due-board-material.png",
+  "generatedOn": "2026-08-28",
+  "generator": "Azure OpenAI image generation via /opt/fleet/lib/gen-image.sh",
+  "deployment": "factory-image",
+  "size": "1536x1024",
+  "quality": "high",
+  "prompt": "Overhead editorial material still life for a local-first supplier invoice due-date utility: a small stack of completely blank cream invoice slips held by a single oxidized steel bulldog clip, resting on rough pale warm concrete, with a narrow natural patch of deep green moss entering from the upper edge. Raking late-afternoon workshop light and crisp hard shadows, tactile macro material photography, warm concrete and charcoal palette with restrained moss and rust, 50mm lens, asymmetrical composition with generous empty area, calm brutalist utility mood. No people, no hands, no currency symbols, no legible text, no screens, no calculator, no logos, no brands, no watermark, no glossy fintech aesthetic, no gradient, no extra props, no insects.",
+  "review": "Accepted at original resolution: blank paper edges and shadows are coherent; one plausible clip; no text, people, brands, watermarks, or unintended symbols."
+}

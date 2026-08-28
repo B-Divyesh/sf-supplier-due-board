@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Due Board clipped bill icon</title>
+  <rect width="512" height="512" fill="#20231f"/>
+  <path fill="#f2f0e8" d="M92 104h328v340H92z"/>
+  <path fill="#496327" d="M92 356h328v88H92z"/>
+  <path fill="#20231f" d="M176 68h160v80H176z"/>
+  <circle cx="256" cy="98" r="18" fill="#f2f0e8"/>
+  <path stroke="#20231f" stroke-width="22" d="M144 212h224M144 276h168"/>
+</svg>
