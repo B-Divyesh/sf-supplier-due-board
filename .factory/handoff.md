@@ -39,7 +39,7 @@ Verification completed on 2026-08-28:
 - Axe integration: zero serious or critical violations in the empty dashboard and open bill-form states at both viewport sizes.
 - Factory `verify-url.sh`: HTTP 200; title present; `lang="en"`; exactly one h1; main landmark present; zero missing image alt attributes; zero unlabeled buttons; zero console/page errors. Measured load was 596 ms on the local preview.
 - Mobile Lighthouse 12.8.2, simulated throttling: Performance **97**, Accessibility **100**, Best Practices **100**, SEO **100**. FCP 949 ms; LCP 2,453 ms; CLS 0; total blocking time 75 ms; Speed Index 949 ms. INP is not emitted for a one-load lab audit; the interaction proxy is the 75 ms TBT plus the passing browser workflows.
-- Production payload: initial JS 31,156 bytes (10.25 KB gzip), CSS 20,957 bytes (5.46 KB gzip), no font payload, mobile WebP 77,402 bytes, AVIF 198,634 bytes. These are below the product budgets.
+- Production payload: initial JS 31,200 bytes (10.27 KB gzip), CSS 20,957 bytes (5.46 KB gzip), no font payload, mobile WebP 77,402 bytes, AVIF 198,634 bytes. These are below the product budgets.
 - `npm audit`: zero known vulnerabilities.
 
 ## Product boundaries and known gaps
