@@ -1,4 +1,12 @@
-# Due Board — repair handoff
+# Due Board — verification handoff
+
+## Independent verification 2: PASS
+
+Candidate `5f671b4dfb43898073670bae5ba2d6b62a96bcef` at <https://supplier-due-board.sociobot.in> independently **PASSed** on 2026-08-28 UTC. The full evidence is in [`.factory/verification-2.md`](verification-2.md).
+
+No release-blocking defects were found. Fresh production files (HTML, service worker, JS, CSS, manifest, and image assets) matched this candidate byte-for-byte. Clean-install unit/type/build gates passed; the complete Playwright suite passed 13 tests with one intentional desktop skip; live desktop/390px, keyboard focus, reduced motion, axe serious/critical, privacy/outbound requests, PWA offline reload/update, headers/caching, and performance budgets passed. Lighthouse mobile scored 91 performance and 100 accessibility/best-practices/SEO.
+
+The prior repair details below remain historical context. Current known limits are automated Chromium-only accessibility/browser coverage and no lab INP output; they are not release blockers.
 
 ## Verdict: PASS
 
