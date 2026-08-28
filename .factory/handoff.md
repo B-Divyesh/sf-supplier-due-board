@@ -53,7 +53,14 @@ Results:
 
 Deployment target: Azure Static Web Apps via `/opt/fleet/lib/deploy-static.sh supplier-due-board dist`, preserving the `static` artifact class and `https://supplier-due-board.sociobot.in` origin.
 
-Live deployment evidence is recorded in the final follow-up below after upload.
+- Repair implementation commit: `3bdc622236f3226e5a7f5c3420f31e8c3ce37bc0`; pushed to `origin/main`.
+- Azure deployment ID: `f82d3f4c-b1de-46e5-aa9e-0cb6b57e57c9`; production upload succeeded and the custom domain returned HTTP 200.
+- Factory `verify-url.sh`: 678 ms network-idle load, expected title and `lang=en`, one h1, main landmark, no missing alt text, no unlabeled buttons, and zero console/page errors.
+- Live response checks: hashed JS/CSS and both AVIFs return `Cache-Control: public, max-age=31536000, immutable`; manifest returns `application/manifest+json`; AVIF returns `image/avif`; CSP and Permissions-Policy are present.
+- Live 390px regression: whitespace is invalid; the object-valued invoice backup is rejected before confirmation; `good-existing` survives reload; wordmark `118.375×44`, Edit `44×44`, Privacy `60.453×44`, Terms `51.562×44`; hero `164px` high and selects `/assets/due-board-material-768.avif`; offline reload retains the record; axe serious/critical count 0; only the production origin was requested; zero cookies and console/page errors.
+- Representative local/live SHA-256 matches: `index.html` `8f25803faf2c9fd48809621911b26b6063f7c46794602a03d10f478c8aa10534`; JS `634171f5c6722c7baa8f1e895bd708dd320ce7e50994e0399a2f5b2848116367`; CSS `a07b65487c2e668a3853c3ba8f091f09c2e4b564eea6c099230b9c55aa3d6c5e`; service worker `1e7fe046573be7db5fedc47567b968488fa1d462bc1c5da2879121858427d55f`; manifest `46dac07ab0c6b07091eb6415e394b613f980d1b902bb9ac3fc9e645ac891d815`; mobile AVIF `70c10db73f8f9d54fa30aaea8ce095ea7b9f342d0ddff2c977b933a5425c1f96`.
+- Lighthouse 12.8.2 against production: performance 100, accessibility 100, best practices 100, SEO 100; FCP 913 ms, LCP 1,363 ms, CLS 0, TBT 0 ms, transfer 84,766 bytes.
+- Evidence artifacts: `/work/.evidence/supplier-due-board-repair/verify.json`, desktop/mobile screenshots, fetched HTML, and `lighthouse-live.json`.
 
 ## Known limits
 
