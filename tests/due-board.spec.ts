@@ -32,7 +32,7 @@ async function importBackup(page: import('@playwright/test').Page, backup: unkno
 
 test('adds, persists, pays, and reopens a supplier bill', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1, name: /Know what’s due/ })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Track supplier bills before they are due' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Start with the next bill.' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Add your first bill' }).click();
@@ -79,6 +79,24 @@ test('has no serious accessibility violations in empty and form states', async (
   expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
 
   await page.getByRole('button', { name: 'Add your first bill' }).click();
+  results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
+});
+
+test('has route titles and no serious accessibility violations on demo and legal pages', async ({ page }) => {
+  await page.goto('/demo');
+  await expect(page).toHaveTitle('Demo — Due Board');
+  await expect(page.getByText('Demo — sample data, nothing is saved.')).toBeVisible();
+  let results = await new AxeBuilder({ page }).exclude('.material-figure').analyze();
+  expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
+
+  await page.goto('/privacy/');
+  await expect(page).toHaveTitle('Privacy — Due Board');
+  results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
+
+  await page.goto('/terms/');
+  await expect(page).toHaveTitle('Terms — Due Board');
   results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
 });
@@ -167,7 +185,7 @@ test('mobile controls meet target size and the hero uses the shallow 768px AVIF'
   for (const locator of [
     page.getByRole('link', { name: 'DUE BOARD', exact: true }),
     page.getByRole('button', { name: 'Edit', exact: true }),
-    page.getByRole('link', { name: 'Privacy', exact: true }),
+    page.getByLabel('Footer').getByRole('link', { name: 'Privacy', exact: true }),
     page.getByRole('link', { name: 'Terms', exact: true }),
   ]) {
     const box = await locator.boundingBox();
@@ -191,5 +209,5 @@ test('reloads the board while fully offline after the first visit', async ({ pag
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByText('Offline — your board still works on this device.')).toBeVisible();
-  await expect(page.getByRole('heading', { level: 1, name: /Know what’s due/ })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Track supplier bills before they are due' })).toBeVisible();
 });

@@ -1,2 +1,3 @@
 User-agent: *
 Allow: /
+Sitemap: https://supplier-due-board.sociobot.in/sitemap.xml

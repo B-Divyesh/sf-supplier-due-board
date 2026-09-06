@@ -1,7 +1,8 @@
 import './styles.css';
 import { materializeBackup } from './backup';
-import { billStore } from './db';
+import { createBillStore, deleteBillDatabase } from './db';
 import { daysFromToday, dueDescription, formatPlainDate, isInWeeklyReview, localDateISO } from './date';
+import { createDemoBills, DEMO_DATABASE_NAME, isDemoLocation, REAL_DATABASE_NAME } from './demo';
 import type { Bill, DueBoardBackup, PortableBill } from './types';
 
 type StatusFilter = 'all' | 'open' | 'paid';
@@ -11,6 +12,28 @@ type SortMode = 'due' | 'supplier' | 'amount';
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('Due Board could not start.');
 
+const demoMode = isDemoLocation();
+const billStore = createBillStore(demoMode ? DEMO_DATABASE_NAME : REAL_DATABASE_NAME);
+const currencyKey = demoMode ? 'demo:due-board-currency' : 'due-board-currency';
+
+function setRouteMetadata(): void {
+  const origin = window.location.origin;
+  const title = demoMode ? 'Demo — Due Board' : 'Due Board — track supplier bills';
+  const description = demoMode
+    ? 'Try five sample supplier bills in a separate local Due Board demo.'
+    : 'Track supplier bills, due dates, and manual paid records in a private local board.';
+  const path = demoMode ? '/demo' : '/';
+  document.title = title;
+  document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.setAttribute('href', `${origin}${path}`);
+  document.querySelector<HTMLMetaElement>('meta[property="og:title"]')?.setAttribute('content', title);
+  document.querySelector<HTMLMetaElement>('meta[property="og:description"]')?.setAttribute('content', description);
+  document.querySelector<HTMLMetaElement>('meta[property="og:url"]')?.setAttribute('content', `${origin}${path}`);
+  document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]')?.setAttribute('content', title);
+  document.querySelector<HTMLMetaElement>('meta[name="twitter:description"]')?.setAttribute('content', description);
+}
+
+setRouteMetadata();
+
 root.innerHTML = `
   <div class="offline-ribbon" id="offline-ribbon" role="status" hidden>
     <span aria-hidden="true">↯</span> Offline — your board still works on this device.
@@ -19,36 +42,40 @@ root.innerHTML = `
     <div class="header-inner">
       <a class="wordmark" href="/"><span>DUE</span> <i aria-hidden="true"></i> <span>BOARD</span></a>
       <nav aria-label="Product">
+        <a class="text-link" href="/demo">Demo</a>
+        <a class="text-link" href="#board">Board</a>
+        <a class="text-link" href="/privacy/">Privacy</a>
         <button class="text-button" type="button" id="data-button">Data controls</button>
         <button class="text-button install-button" type="button" id="install-button" hidden>Install app</button>
       </nav>
     </div>
   </header>
+  ${demoMode ? `<section class="demo-banner" aria-label="Demo mode" role="status"><div class="wrap"><p><strong>Demo — sample data, nothing is saved.</strong> This sample uses separate browser storage.</p><div><button type="button" class="text-link" id="reset-demo">Reset demo</button><button type="button" class="text-link" id="start-for-real">Start for real</button></div></div></section>` : ''}
   <main id="main">
     <section class="intro wrap" aria-labelledby="page-title">
       <div class="intro-copy">
-        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Local supplier ledger</p>
-        <h1 id="page-title">Know what’s due.<br><em>Nothing more.</em></h1>
-        <p class="lede">One private place for incoming bills, due dates, and the note that proves you handled them.</p>
+        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Supplier bills</p>
+        <h1 id="page-title">Track supplier bills before they are due</h1>
+        <p class="lede">For sole proprietors and small businesses who need one local list before they pay.</p>
         <div class="intro-actions">
-          <button class="primary-button" type="button" data-add-bill><span aria-hidden="true">＋</span> Add a bill</button>
-          <button class="secondary-button" type="button" id="print-button"><span aria-hidden="true">▤</span> Print weekly list</button>
+          <div class="action-choice"><a class="primary-button intro-demo-action" href="/demo">Try it with sample data</a><p>See five sample bills right away.</p></div>
+          <div class="action-choice"><button class="secondary-button" type="button" data-add-bill>Add a bill</button><p>Save your first bill on this device.</p></div>
         </div>
-        <p class="local-note"><strong>No account.</strong> Bills and attachments stay in this browser.</p>
+        <ul class="fact-list" aria-label="Due Board facts"><li>Free to use</li><li>Works offline after the first visit</li><li>Bills stay in this browser</li></ul>
       </div>
       <figure class="material-figure">
         <picture>
           <source type="image/avif" srcset="/assets/due-board-material-768.avif 768w, /assets/due-board-material-1536.avif 1536w" sizes="(max-width: 760px) calc(100vw - 24px), 430px" />
           <img src="/assets/due-board-material-768.webp" srcset="/assets/due-board-material-768.webp 768w, /assets/due-board-material-1536.webp 1536w" sizes="(max-width: 760px) 100vw, 430px" width="768" height="512" alt="Blank cream invoice slips clipped on rough concrete beside a strip of moss" fetchpriority="high" decoding="async" />
         </picture>
-        <figcaption>Keep the paper. See the week.</figcaption>
+        <figcaption>Original product artwork.</figcaption>
       </figure>
     </section>
 
-    <section class="board wrap" aria-labelledby="board-heading">
+    <section class="board wrap" id="board" aria-labelledby="board-heading">
       <div class="section-heading">
-        <div><p class="eyebrow">Current position</p><h2 id="board-heading">Your due board</h2></div>
-        <p class="as-of">As of <time id="today-label"></time> <span title="Dates use your device’s local calendar day">local date</span></p>
+        <div><p class="eyebrow">Bills to review</p><h2 id="board-heading">Your due board</h2></div>
+        <div class="board-actions"><p class="as-of">As of <time id="today-label"></time> <span title="Dates use your device’s local calendar day">local date</span></p><button class="secondary-button" type="button" id="print-button">Print weekly list</button></div>
       </div>
       <dl class="metrics" id="metrics" aria-label="Bill summary">
         <div class="metric metric-soon"><dt>Due in 7 days</dt><dd>—<small>Loading bills</small></dd></div>
@@ -75,25 +102,25 @@ root.innerHTML = `
       </div>
       <div class="result-meta"><p id="result-count" aria-live="polite">Loading your local board…</p><span class="rule" aria-hidden="true"></span></div>
       <div id="results" aria-busy="true">
-        <div class="loading-state" role="status"><span></span><span></span><span></span><p>Opening the local ledger…</p></div>
+        <div class="loading-state" role="status"><span></span><span></span><span></span><p>Opening the local board…</p></div>
       </div>
     </section>
 
-    <section class="promise wrap" aria-label="Product boundaries">
-      <p class="eyebrow">Built with restraint</p>
-      <div><p><strong>It remembers deadlines.</strong><br />It does not touch your bank.</p><p><strong>It stores your proof.</strong><br />It does not send a payment.</p><p><strong>It works offline.</strong><br />It does not create an account.</p></div>
+    <section class="promise wrap" aria-labelledby="boundaries-heading">
+      <h2 id="boundaries-heading">What Due Board does not do</h2>
+      <div><p><strong>It does not connect to a bank.</strong><br />Enter and check bills yourself.</p><p><strong>It does not send payments.</strong><br />A paid status is your own record.</p><p><strong>It does not require an account.</strong><br />Your board stays in this browser.</p></div>
     </section>
   </main>
 
   <footer class="site-footer"><div class="wrap">
-    <p><strong>Due Board</strong><br />A local-first utility for small businesses.</p>
-    <nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
-    <p class="disclosure">Material image generated for this product. No tracking. Not financial advice.</p>
+    <p><strong>Due Board</strong><br />A free local board for supplier bills.</p>
+    <nav aria-label="Footer"><a href="/demo">Demo</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
+    <p class="disclosure">Original product artwork. No tracking. Not financial advice.</p>
   </div></footer>
 
   <dialog id="bill-dialog" class="sheet-dialog" aria-labelledby="bill-dialog-title">
     <form id="bill-form" method="dialog" novalidate>
-      <div class="dialog-head"><div><p class="eyebrow">Supplier ledger</p><h2 id="bill-dialog-title">Add a bill</h2></div><button class="icon-button" type="button" data-close aria-label="Close bill form">×</button></div>
+      <div class="dialog-head"><div><p class="eyebrow">Supplier bills</p><h2 id="bill-dialog-title">Add a bill</h2></div><button class="icon-button" type="button" data-close aria-label="Close bill form">×</button></div>
       <p class="dialog-intro">Record what you need to act. Dates are calendar dates on this device—no hidden time zone conversion.</p>
       <input type="hidden" id="bill-id" />
       <div class="field-grid">
@@ -279,7 +306,7 @@ function openBillDialog(bill?: Bill): void {
   $<HTMLInputElement>('#supplier').value = bill?.supplier ?? '';
   $<HTMLInputElement>('#invoice-number').value = bill?.invoiceNumber ?? '';
   $<HTMLInputElement>('#amount').value = bill ? (bill.amountMinor / 100).toFixed(2) : '';
-  $<HTMLSelectElement>('#currency').value = bill?.currency ?? localStorage.getItem('due-board-currency') ?? 'USD';
+  $<HTMLSelectElement>('#currency').value = bill?.currency ?? localStorage.getItem(currencyKey) ?? 'USD';
   $<HTMLInputElement>('#due-date').value = bill?.dueDate ?? localDateISO();
   if (bill?.attachment) {
     attachmentArea.hidden = false;
@@ -350,7 +377,7 @@ async function saveBill(event: SubmitEvent): Promise<void> {
   };
   try {
     await billStore.put(bill);
-    localStorage.setItem('due-board-currency', bill.currency);
+    localStorage.setItem(currencyKey, bill.currency);
     bills = existing ? bills.map((item) => item.id === bill.id ? bill : item) : [...bills, bill];
     closeDialog(billDialog);
     render();
@@ -559,6 +586,9 @@ $('#delete-all').addEventListener('click', () => void deleteAll());
 $('#print-button').addEventListener('click', printWeeklyList);
 $('.toast-close').addEventListener('click', () => { toast.hidden = true; });
 
+document.querySelector<HTMLButtonElement>('#reset-demo')?.addEventListener('click', () => void resetDemo());
+document.querySelector<HTMLButtonElement>('#start-for-real')?.addEventListener('click', () => void leaveDemo());
+
 function updateNetworkState(): void {
   $<HTMLDivElement>('#offline-ribbon').hidden = navigator.onLine;
 }
@@ -604,14 +634,41 @@ async function start(): Promise<void> {
   updateNetworkState();
   try {
     bills = await billStore.list();
+    if (demoMode && bills.length === 0) {
+      bills = createDemoBills();
+      await billStore.replaceAll(bills);
+    }
     render();
   } catch (error) {
     results.setAttribute('aria-busy', 'false');
     $('#result-count').textContent = 'The local board could not be opened';
-    results.innerHTML = `<div class="error-state"><p class="eyebrow">Storage unavailable</p><h2>Your browser did not open the local ledger.</h2><p>${escapeHtml(error instanceof Error ? error.message : 'Local storage is unavailable.')} Check private-browsing or storage settings, then retry.</p><button type="button" class="primary-button" id="retry-storage">Retry</button></div>`;
+    results.innerHTML = `<div class="error-state"><p class="eyebrow">Storage unavailable</p><h2>Your browser did not open the local board.</h2><p>${escapeHtml(error instanceof Error ? error.message : 'Local storage is unavailable.')} Check private-browsing or storage settings, then retry.</p><button type="button" class="primary-button" id="retry-storage">Retry</button></div>`;
     $('#retry-storage').addEventListener('click', () => window.location.reload());
   }
   try { await registerServiceWorker(); } catch { /* The app remains usable without installation. */ }
 }
 
 void start();
+
+async function resetDemo(): Promise<void> {
+  if (!demoMode) return;
+  try {
+    bills = createDemoBills();
+    await billStore.replaceAll(bills);
+    render();
+    showToast('The sample bills were reset.');
+  } catch (error) {
+    showToast(error instanceof Error ? error.message : 'The sample bills could not be reset.');
+  }
+}
+
+async function leaveDemo(): Promise<void> {
+  if (!demoMode) return;
+  try {
+    await deleteBillDatabase(DEMO_DATABASE_NAME);
+    localStorage.removeItem(currencyKey);
+    window.location.assign('/');
+  } catch (error) {
+    showToast(error instanceof Error ? error.message : 'The sample data could not be removed. Close other Due Board tabs, then try again.');
+  }
+}

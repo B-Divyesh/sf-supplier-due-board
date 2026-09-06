@@ -1,0 +1,86 @@
+[
+  {
+    "id": "demo-sandbox",
+    "claim": "Try it with sample data opens a realistic, resettable sample that is separate from the real board.",
+    "where": "Landing first action, /demo banner, README",
+    "test": "npm run test:e2e -- --grep @claim:demo-sandbox",
+    "sandbox": "Fresh browser context: add a real bill, enter /demo, modify and reset the sample, then return to the untouched real board."
+  },
+  {
+    "id": "record-bills",
+    "claim": "Records supplier, reference, amount, currency, and a local-calendar due date.",
+    "where": "README, bill form",
+    "test": "npm run test:e2e -- --grep @claim:record-bills",
+    "sandbox": "Fresh /demo browser context: add a bill and assert its displayed supplier, reference, currency amount, and formatted due date."
+  },
+  {
+    "id": "local-attachment",
+    "claim": "Keeps a PDF or image attachment in browser storage.",
+    "where": "README, bill form, privacy page",
+    "test": "npm run test:e2e -- --grep @claim:local-attachment",
+    "sandbox": "Fresh /demo browser context: attach a PDF, reload, and download the same named attachment."
+  },
+  {
+    "id": "board-summary",
+    "claim": "Shows due totals and supports search, filters, and sorting.",
+    "where": "README, board controls",
+    "test": "npm run test:e2e -- --grep @claim:board-summary",
+    "sandbox": "Fresh /demo browser context: use the seeded mixed-status sample to assert summary labels, search, paid filter, and amount sort."
+  },
+  {
+    "id": "paid-record",
+    "claim": "Records a paid date and payment note, and can reopen a bill.",
+    "where": "README, payment form",
+    "test": "npm run test:e2e -- --grep @claim:paid-record",
+    "sandbox": "Fresh /demo browser context: record a paid date/note and reopen the same bill."
+  },
+  {
+    "id": "weekly-print",
+    "claim": "Prepares a weekly supplier review of overdue, due-soon, and recently paid bills.",
+    "where": "README, Print weekly list action",
+    "test": "npm run test:e2e -- --grep @claim:weekly-print",
+    "sandbox": "Fresh /demo browser context: prepare the print sheet and assert its title and seeded attention/paid bills."
+  },
+  {
+    "id": "data-controls",
+    "claim": "Exports JSON and CSV, imports a backup, and deletes local data.",
+    "where": "README, Data controls",
+    "test": "npm run test:e2e -- --grep @claim:data-controls",
+    "sandbox": "Fresh /demo browser context: download JSON and CSV, delete the sample, then import the JSON backup."
+  },
+  {
+    "id": "safe-import",
+    "claim": "Rejects an invalid backup without changing current bills.",
+    "where": "README, import error",
+    "test": "npm run test:e2e -- --grep @claim:safe-import",
+    "sandbox": "Fresh /demo browser context: import a structurally invalid backup and assert seeded bills remain."
+  },
+  {
+    "id": "offline-reload",
+    "claim": "Works offline after the first visit.",
+    "where": "Landing facts, README",
+    "test": "npm run test:e2e -- --grep @claim:offline-reload",
+    "sandbox": "Dedicated new browser context: visit populated /demo under service-worker control, go offline, reload, and assert the board remains."
+  },
+  {
+    "id": "private-local",
+    "claim": "Stores the board in this browser, uses no account, and makes no tracking requests.",
+    "where": "Privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:private-local",
+    "sandbox": "Fresh /demo browser context: complete and reload a bill flow while recording requests and cookies; assert the bill remains, only same-origin requests occur, and no cookies exist."
+  },
+  {
+    "id": "manual-only",
+    "claim": "Does not connect to a bank or send a payment; a paid status is a manual record.",
+    "where": "Landing boundaries, terms, README",
+    "test": "npm run test:e2e -- --grep @claim:manual-only",
+    "sandbox": "Fresh /demo browser context: record a paid status while recording requests; assert a local paid status and only same-origin requests."
+  },
+  {
+    "id": "free-use",
+    "claim": "Free to use.",
+    "where": "Landing facts, terms, README",
+    "test": "npm run test:e2e -- --grep @claim:free-use",
+    "sandbox": "Fresh browser context: enter the sample from the landing page and add a bill without an account or payment step."
+  }
+]

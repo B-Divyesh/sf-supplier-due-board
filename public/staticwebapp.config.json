@@ -1,12 +1,9 @@
 {
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": [
-      "/assets/*",
-      "/*.{css,js,png,jpg,svg,avif,webp,webmanifest,ico,woff2,json,txt,xml,wasm}"
-    ]
-  },
   "routes": [
+    {
+      "route": "/demo",
+      "rewrite": "/index.html"
+    },
     {
       "route": "/assets/*",
       "headers": {
@@ -19,6 +16,11 @@
     "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "X-Content-Type-Options": "nosniff"
+  },
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/404.html"
+    }
   },
   "mimeTypes": {
     ".avif": "image/avif",

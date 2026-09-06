@@ -1,9 +1,11 @@
-const VERSION = 'due-board-v1.0.1';
+const VERSION = 'due-board-v1.1.0';
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 const CORE = [
   '/',
+  '/demo',
   '/index.html',
+  '/404.html',
   '/offline.html',
   '/manifest.webmanifest',
   '/icon.svg',
@@ -18,6 +20,7 @@ const CORE = [
   '/terms/',
   '/terms/index.html',
   '/legal.css',
+  '/sitemap.xml',
 ];
 
 self.addEventListener('install', (event) => {
@@ -57,7 +60,10 @@ async function networkFirst(request) {
   } catch {
     const cached = await caches.match(request, { ignoreSearch: true });
     if (cached) return cached;
-    if (request.mode === 'navigate') return (await caches.match('/index.html')) || caches.match('/offline.html');
+    if (request.mode === 'navigate') {
+      if (new URL(request.url).pathname === '/demo') return (await caches.match('/index.html')) || caches.match('/offline.html');
+      return (await caches.match('/index.html')) || caches.match('/offline.html');
+    }
     throw new Error('Offline and not cached');
   }
 }
