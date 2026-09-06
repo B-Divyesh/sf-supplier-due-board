@@ -5,6 +5,7 @@
 **PASS — repair candidate deployed and checked on production.**
 
 - **Implementation SHA:** `bf0a9591328ac48220b2b8c7f8acb14064a9bd79` (`fix: add isolated due board demo and release routes`)
+- **Documentation/evidence SHA:** `7bf4d101f24affab2adc7214c1ed89ace05b0a45` (`docs: record repair verification evidence`)
 - **Prior review/documentation SHA:** `e4d59d6fbd38d36ee2e0062c8a98a1598a01aa29` (the report that requested this repair)
 - **Deployment ID:** `677dba2a-7917-45f7-a5d6-a06b027f762e`
 - **Production URL:** <https://supplier-due-board.sociobot.in>
