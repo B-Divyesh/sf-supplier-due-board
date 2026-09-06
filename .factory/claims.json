@@ -67,7 +67,7 @@
     "claim": "Stores the board in this browser, uses no account, and makes no tracking requests.",
     "where": "Privacy page, README",
     "test": "npm run test:e2e -- --grep @claim:private-local",
-    "sandbox": "Fresh /demo browser context: complete and reload a bill flow while recording requests and cookies; assert the bill remains, only same-origin requests occur, and no cookies exist."
+    "sandbox": "Fresh /demo browser context: complete a bill flow while recording requests and cookies; assert the bill is in the demo IndexedDB database, only same-origin requests occur, and no cookies exist."
   },
   {
     "id": "manual-only",

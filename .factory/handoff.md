@@ -1,42 +1,42 @@
-# Due Board — review handoff
+# Due Board — repair 2 handoff
 
-## Review 1: FAIL
+## Result
 
-The 2026-09-06 independent review of live candidate `3bdc622236f3226e5a7f5c3420f31e8c3ce37bc0` **FAILed** with five findings and 11 untested public claims. The later documentation commit is `c9dde966c9abdc9afd7b6f671ecc54a11aaee7d5`; it did not change product code. The complete report is [`.factory/review-1.md`](review-1.md).
+**PASS — repair candidate deployed and checked on production.**
 
-The product code was not modified. Clean verification passed `npm ci`, `npm test` (19/19), `npm run build`, `npm run test:e2e` (13 passed, one intentional desktop skip), and `npm audit --audit-level=low`. Fresh live desktop/phone browser checks passed core local-board, keyboard, axe serious/critical, privacy-origin, and offline-reload paths. The live runtime matches the implementation candidate byte-for-byte.
+- **Implementation SHA:** `bf0a9591328ac48220b2b8c7f8acb14064a9bd79` (`fix: add isolated due board demo and release routes`)
+- **Prior review/documentation SHA:** `e4d59d6fbd38d36ee2e0062c8a98a1598a01aa29` (the report that requested this repair)
+- **Deployment ID:** `677dba2a-7917-45f7-a5d6-a06b027f762e`
+- **Production URL:** <https://supplier-due-board.sociobot.in>
+- **Artifact:** static Vite + TypeScript PWA; bills and attachments stay in browser IndexedDB. There is no backend, account system, database service, tenant model, health endpoint, or rate-limit API to verify.
 
-Release remains blocked by: missing one-click isolated demo/sample/reset flow and `.factory/demo.md`; missing `.factory/claims.json` and claim-tagged commands; first-screen plain-words/copy-audit failures; missing real 404 and sitemap; and incomplete social/route metadata. Build and deployment instructions remain as recorded below, but this handoff is not a product PASS.
+## First screen checked on fresh production browsers
 
-## Independent verification 2: PASS
+- **Job:** track supplier bills before they are due.
+- **Audience:** sole proprietors and small businesses who need one local list before they pay.
+- **First action:** **Try it with sample data**; it opens five realistic bills in the isolated `/demo` board.
 
-Candidate `5f671b4dfb43898073670bae5ba2d6b62a96bcef` at <https://supplier-due-board.sociobot.in> independently **PASSed** on 2026-08-28 UTC. The full evidence is in [`.factory/verification-2.md`](verification-2.md).
+Fresh Chromium desktop and 390px phone contexts both showed this copy. Screenshots are in `/work/.evidence/supplier-due-board-repair-2/`, including the populated phone sample.
 
-No release-blocking defects were found. Fresh production files (HTML, service worker, JS, CSS, manifest, and image assets) matched this candidate byte-for-byte. Clean-install unit/type/build gates passed; the complete Playwright suite passed 13 tests with one intentional desktop skip; live desktop/390px, keyboard focus, reduced motion, axe serious/critical, privacy/outbound requests, PWA offline reload/update, headers/caching, and performance budgets passed. Lighthouse mobile scored 91 performance and 100 accessibility/best-practices/SEO.
+## Repairs completed
 
-The prior repair details below remain historical context. Current known limits are automated Chromium-only accessibility/browser coverage and no lab INP output; they are not release blockers.
+### Review 1 findings
 
-## Verdict: PASS
+| Finding | Disposition |
+| --- | --- |
+| R1 — no isolated sample demo | Closed. `/demo` and `?demo=1` use IndexedDB `demo:supplier-due-board`, never open `supplier-due-board`, seed five realistic bills, show the persistent required label, and provide **Reset demo** and **Start for real**. Leaving deletes sample storage only. `.factory/demo.md` documents it. |
+| R2 — no claims inventory/tests | Closed. `.factory/claims.json` lists 12 visitor claims. Each has exactly one `@claim:<id>` Playwright test and an individually runnable command from `/demo`. All 12 exact commands passed on desktop and mobile. |
+| R3 — plain-words first screen | Closed. The h1 names the job, the audience is explicit, the sample action explains its result, and the first screen shows free/offline/local facts. Mood copy and competing terminology were removed. `.factory/copy-audit.md` records the audit and terminology table. |
+| R4 — missing 404/sitemap | Closed. Static Web Apps maps `/demo` explicitly and serves the designed `/404.html` through `responseOverrides`; production unknown URLs return HTTP 404. `sitemap.xml` lists all public routes and `robots.txt` points to it. |
+| R5 — incomplete metadata | Closed. Home, demo runtime, Privacy, Terms, and 404 have route titles and descriptions/canonicals; public pages have Open Graph/Twitter tags, the Apple touch icon, and a 1200×630 original-art-derived social card. |
 
-Release-blocking findings V-01 through V-06 from independent verification commit `373b3517e4d5fdb0c0af7bd473a31ac4fadcef00` against candidate `e221119d944f77081a359a649b0ed33b48292cfc` are repaired. The product remains a Vite + TypeScript, IndexedDB-local, static offline PWA with the researched scope and concrete-and-moss design intact.
+### Earlier V-01 through V-06
 
-## Repairs
+All remain closed and were preserved: atomic full-schema backup materialization (V-01), whitespace supplier rejection (V-02), 44px mobile controls and matching wordmark name (V-03), immutable asset caching (V-04), MIME/CSP/permissions policy (V-05), and the shallow responsive mobile hero (V-06). Existing regression tests continue to cover those paths.
 
-- **V-01 — atomic safe import:** `src/backup.ts` now validates and materializes the complete v1 schema before confirmation or IndexedDB mutation. It checks every field type and limit, real calendar dates, timestamps, paid/open consistency, allowed currency, safe unique IDs, attachment filename/MIME/base64/declared size/8 MB limit, and duplicate IDs. Only known fields are materialized. Rejection explicitly says the current board was not changed; `replaceAll` remains one IndexedDB transaction.
-- **V-02 — blank supplier:** form submission trims first, applies custom validity to a whitespace-only supplier, announces a specific error, and never writes a blank record. The same normalized invariant is enforced during import.
-- **V-03 — mobile targets/name:** the wordmark, all bill actions, and footer legal links are at least 44×44 CSS px. The wordmark's computed accessible name is now its visible `DUE BOARD` text with no mismatching “home” suffix.
-- **V-04/V-05 — response policy:** `public/staticwebapp.config.json` sets one-year immutable caching for `/assets/*`, maps `.webmanifest` and `.avif` to their correct MIME types, and supplies CSP, Permissions-Policy, Referrer-Policy, and nosniff headers.
-- **V-06 — mobile hero:** a new 768px AVIF (66,655 bytes) is present in `srcset`, and the 390px treatment is a 164px-high shallow crop rather than a 512px-tall panel. The service-worker cache version is `due-board-v1.0.1` and precaches the new asset.
+## Verification
 
-## Exact regression coverage
-
-- `src/backup.test.ts`: app-generated attachment backup materialization plus rejection of unsafe IDs, non-string invoice data, whitespace suppliers, unsupported currency, amount overflow, impossible dates, inconsistent paid records, invalid timestamps/payment notes, oversize/mismatched/MIME-mismatched attachments, and duplicate IDs.
-- `src/release.test.ts`: immutable cache policy, CSP/Permissions-Policy, correct manifest/AVIF MIME mappings, and the sub-100 KB mobile AVIF.
-- `tests/due-board.spec.ts`: whitespace submission leaves IndexedDB empty; the verifier's object-valued `invoiceNumber` backup never opens confirmation and preserves `good-existing` after reload; an untouched app-exported JSON backup restores an attachment byte-for-byte; 390px target geometry, wordmark accessible name, shallow hero, and 768px AVIF selection are asserted.
-
-## Local verification (2026-08-28 UTC)
-
-Clean release sequence:
+Clean setup and local gates:
 
 ```sh
 npm ci
@@ -49,36 +49,37 @@ npm run test:e2e
 npm audit --audit-level=low
 ```
 
-Results:
+- `npm ci`: 60 packages; audit reported 0 vulnerabilities.
+- `npm test`: 21/21 passed, including static routing/metadata policy tests; all three named time-zone runs passed.
+- `npm run build`: passed; `dist/index.html` is at the static root.
+- `npm run test:e2e`: 39 passed, 1 intentional desktop skip for the mobile-only geometry test.
+- Every command declared in `.factory/claims.json` was also run separately; all 12 passed in both desktop and mobile Chromium.
+- `npm audit --audit-level=low`: 0 vulnerabilities.
 
-- Clean install: 60 packages, 0 vulnerabilities.
-- Unit/integration/release policy: 19/19 passed in UTC and all three named time zones.
-- Type check and Vite production build: passed; `dist/index.html` is at the static root.
-- Playwright 1.58.2: 13 passed across desktop Chromium and 390×844 mobile Chromium; one intentional desktop skip for the mobile-only geometry case.
-- Axe 4.10.2: zero serious/critical findings in empty, bill-dialog, root, privacy, and terms states.
-- Keyboard/focus: skip link is first with a solid focus ring; Enter opens Add bill; focus begins on Supplier; Escape closes and restores focus to the trigger.
-- 200% root text at 390px: `scrollWidth=390`, `innerWidth=390`; no horizontal loss. Reduced motion: dialog duration `0.00001s`, transform `none`.
-- Privacy smoke: root/privacy/terms requested only `http://127.0.0.1:4173`; zero cookies, console errors, or page errors. Source and browser flow use no analytics, beacons, third-party scripts/fonts, or remote data API.
-- Offline: saved board reload passed with `context.setOffline(true)` in desktop and mobile projects.
-- Update simulation: v1.0.1 controlled the page, the update toast appeared, **Update now** activated v1.0.2, and cache keys changed from `due-board-v1.0.1-{shell,runtime}` to `due-board-v1.0.2-{shell,runtime}`.
-- Lighthouse 12.8.2 local mobile: performance 99, accessibility 100, best practices 100, SEO 100; FCP 903 ms, LCP 1,355 ms, CLS 0, TBT 136 ms, transfer 85,098 bytes. Lighthouse does not provide lab INP.
-- Production budgets: JS 32,835 bytes raw; CSS 21,121 bytes raw; fonts 0; mobile AVIF 66,655 bytes. All are below contract limits.
-- Package/consumer and backend checks are not applicable to this static PWA. The repository has no separate lint configuration; strict TypeScript (`tsc --noEmit`) is the source/type gate and passed.
+Production checks:
 
-## Deployment and live identity
+- `/opt/fleet/lib/verify-url.sh` passed: HTTP 200, title, `lang=en`, exactly one h1, main landmark, complete image alt coverage, labeled buttons, and no console/page errors (856 ms network-idle load).
+- Fresh live Playwright desktop/phone checks passed for demo separation/reset/start-for-real, populated demo offline reload, route titles, and axe serious/critical checks for demo, Privacy, and Terms (6/6).
+- Production routes: `/`, `/demo`, `/privacy/`, `/terms/`, `/sitemap.xml`, and `/robots.txt` return 200. `/this-page-does-not-exist` returns the designed page with deliberate HTTP 404.
+- Live Lighthouse mobile: **100 performance / 100 accessibility / 100 best practices / 100 SEO**; FCP 913 ms, LCP 1,363 ms, CLS 0, transfer 89,480 bytes. Lab INP was not emitted by Lighthouse.
+- Current production build: 36,580-byte raw initial JS (11.79 KB gzip), 22,300-byte raw CSS (5.74 KB gzip), no font payload, and a 66,655-byte mobile AVIF.
 
-Deployment target: Azure Static Web Apps via `/opt/fleet/lib/deploy-static.sh supplier-due-board dist`, preserving the `static` artifact class and `https://supplier-due-board.sociobot.in` origin.
+## Privacy, scope, and billing
 
-- Repair implementation commit: `3bdc622236f3226e5a7f5c3420f31e8c3ce37bc0`; pushed to `origin/main`.
-- Azure deployment ID: `f82d3f4c-b1de-46e5-aa9e-0cb6b57e57c9`; production upload succeeded and the custom domain returned HTTP 200.
-- Factory `verify-url.sh`: 678 ms network-idle load, expected title and `lang=en`, one h1, main landmark, no missing alt text, no unlabeled buttons, and zero console/page errors.
-- Live response checks: hashed JS/CSS and both AVIFs return `Cache-Control: public, max-age=31536000, immutable`; manifest returns `application/manifest+json`; AVIF returns `image/avif`; CSP and Permissions-Policy are present.
-- Live 390px regression: whitespace is invalid; the object-valued invoice backup is rejected before confirmation; `good-existing` survives reload; wordmark `118.375×44`, Edit `44×44`, Privacy `60.453×44`, Terms `51.562×44`; hero `164px` high and selects `/assets/due-board-material-768.avif`; offline reload retains the record; axe serious/critical count 0; only the production origin was requested; zero cookies and console/page errors.
-- Representative local/live SHA-256 matches: `index.html` `8f25803faf2c9fd48809621911b26b6063f7c46794602a03d10f478c8aa10534`; JS `634171f5c6722c7baa8f1e895bd708dd320ce7e50994e0399a2f5b2848116367`; CSS `a07b65487c2e668a3853c3ba8f091f09c2e4b564eea6c099230b9c55aa3d6c5e`; service worker `1e7fe046573be7db5fedc47567b968488fa1d462bc1c5da2879121858427d55f`; manifest `46dac07ab0c6b07091eb6415e394b613f980d1b902bb9ac3fc9e645ac891d815`; mobile AVIF `70c10db73f8f9d54fa30aaea8ce095ea7b9f342d0ddff2c977b933a5425c1f96`.
-- Lighthouse 12.8.2 against production: performance 100, accessibility 100, best practices 100, SEO 100; FCP 913 ms, LCP 1,363 ms, CLS 0, TBT 0 ms, transfer 84,766 bytes.
-- Evidence artifacts: `/work/.evidence/supplier-due-board-repair/verify.json`, desktop/mobile screenshots, fetched HTML, and `lighthouse-live.json`.
+The app has no analytics, third-party scripts/fonts, cookies, remote bill API, bank connection, payment execution, OCR, or accounting journal. Request-capture claims assert same-origin traffic only during the demo flows. The researched offer is free; no paid deliverable or billing registration is advertised, so no billing-offer metadata is required.
+
+`.factory/catalog-description.txt` is 80 characters, verb-first, and was copied to `/work/.evidence/catalog-description.txt`.
+
+## Deploy
+
+```sh
+npm run build
+/opt/fleet/lib/deploy-static.sh supplier-due-board dist
+```
+
+The durable static deployment configuration is in `public/staticwebapp.config.json`; no volumes, replicas, or backend environment apply to this static PWA.
 
 ## Known limits
 
-- Automated Chromium/axe checks are not a human NVDA/VoiceOver session, and Safari/Firefox were not exercised.
-- Lighthouse lab output does not include INP.
+- Browser/a11y automation is Chromium plus axe; Safari, Firefox, and a human NVDA/VoiceOver session were not run.
+- Lighthouse did not provide a lab INP value.

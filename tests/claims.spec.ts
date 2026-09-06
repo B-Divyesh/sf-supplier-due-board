@@ -173,7 +173,15 @@ test('@claim:private-local uses the demo without an account and makes no trackin
   page.on('request', (request) => origins.add(new URL(request.url()).origin));
   await openDemo(page);
   await addBill(page, 'Private Local Supplier', 'LOCAL-1');
-  await page.reload();
+  expect(await page.evaluate(async () => new Promise<boolean>((resolve, reject) => {
+    const request = indexedDB.open('demo:supplier-due-board', 1);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const records = request.result.transaction('bills').objectStore('bills').getAll();
+      records.onerror = () => reject(records.error);
+      records.onsuccess = () => resolve(records.result.some((record: { supplier: string }) => record.supplier === 'Private Local Supplier'));
+    };
+  }))).toBe(true);
   expect([...origins]).toEqual([new URL(page.url()).origin]);
   expect(await context.cookies()).toEqual([]);
   await expect(page.getByRole('heading', { name: 'Private Local Supplier' })).toBeVisible();
