@@ -1,4 +1,12 @@
-# Due Board — verification handoff
+# Due Board — review handoff
+
+## Review 1: FAIL
+
+The 2026-09-06 independent review of live candidate `3bdc622236f3226e5a7f5c3420f31e8c3ce37bc0` **FAILed** with five findings and 11 untested public claims. The later documentation commit is `c9dde966c9abdc9afd7b6f671ecc54a11aaee7d5`; it did not change product code. The complete report is [`.factory/review-1.md`](review-1.md).
+
+The product code was not modified. Clean verification passed `npm ci`, `npm test` (19/19), `npm run build`, `npm run test:e2e` (13 passed, one intentional desktop skip), and `npm audit --audit-level=low`. Fresh live desktop/phone browser checks passed core local-board, keyboard, axe serious/critical, privacy-origin, and offline-reload paths. The live runtime matches the implementation candidate byte-for-byte.
+
+Release remains blocked by: missing one-click isolated demo/sample/reset flow and `.factory/demo.md`; missing `.factory/claims.json` and claim-tagged commands; first-screen plain-words/copy-audit failures; missing real 404 and sitemap; and incomplete social/route metadata. Build and deployment instructions remain as recorded below, but this handoff is not a product PASS.
 
 ## Independent verification 2: PASS
 
